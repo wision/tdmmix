@@ -3,11 +3,9 @@ debug  = require("debug") "tdmmix bot"
 require("cson-config").load()
 config = process.config
 
-channel = "#mrdka"
+channel = "#tdmmix"
 
-status =
-	connected: no
-	channels: [ channel ]
+status = {}
 
 client = new irc.Client config.server, config.nickname, channels: []
 
@@ -22,11 +20,13 @@ client.on "registered", () ->
 	# join channel after +x
 	client.conn.write "JOIN #{channel}\r\n" for channel in status.channels
 
+
 client.addListener "message", (from, to, message) ->
 	message = message.trim()
-	debug "#{from} #{to} #{message}"
+	debug "got message from: #{from} to: #{to} msg: #{message}"
 	return unless to is channel
 	processLine from, message if message[0] is "!"
+
 
 processLine = (user, line) ->
 	line = line.split " "
@@ -39,24 +39,16 @@ processLine = (user, line) ->
 
 	processCommand user, command, params
 
+
 processCommand = (user, command, params) ->
 	command = command.toLowerCase()
 	return debug "invalid command '#{command}'" unless commandHandlers[command]
-	debug "processing command #{command} user: #{user} params: #{params}"
+	debug "processing command #{command} user: #{user} params: #{JSON.stringify params}"
 	commandHandlers[command] user, params
 
-addPlayer = (user, params) ->
-	debug "adding player"
-	team = params[0]
-	team = "queue" if status.players.blue.length is 4 and status.players.red.length is 4
 
-	unless team
-		team = "red" if status.players.red.length < status.players.blue.length
-		team = "blue"
-
-	player = params[1] if params[1]
-	player = params[0] if params[0] and params[0] not in ["red", "blue", "yellow", "green", "queue"]
-	player ?= user
+addPlayerToTeam = (teamName, player) ->
+	teamName = "queue" if status.players[teamName].length is 4
 
 	# player is already added
 	for team, players of status.players
@@ -64,8 +56,25 @@ addPlayer = (user, params) ->
 		client.say channel, "Player #{player} is already in team #{team}"
 		return
 
-	status.players[team].push player
+	debug "adding player #{player} to #{teamName} team"
+	status.players[teamName].push player
+
+
+addPlayer = (user, params, team) ->
+	debug "adding player"
+	team = params[0]
+
+	unless team
+		team = "red"
+		team = "blue" if status.players.blue.length < status.players.red.length
+
+	player = params[1] if params[1]
+	player = params[0] if params[0] and params[0] not in ["red", "blue", "yellow", "green", "queue"]
+	player ?= user
+
+	addPlayerToTeam team, player
 	updateTopic()
+
 
 remPlayer = (user, params) ->
 	debug "removing player"
@@ -78,33 +87,95 @@ remPlayer = (user, params) ->
 
 	updateTopic()
 
+
 initValues = () ->
+	status.connected = no
+	status.channels = [ channel ]
+	status.maps = config.maps
+	resetValues()
+
+
+resetValues = () ->
 	status.topic = JSON.parse JSON.stringify config.topic
 	status.players = JSON.parse JSON.stringify config.players
 	updateTopic()
+
 
 setTopic = (user, params) ->
 	debug "setting topic #{params}"
 	topic = params.join " "
 	updateTopic()
 
+
 updateTopic = () ->
 	return unless status.connected
 
-	t = "#{status.topic}"
+	t = "#{ircColors.bold}#{status.topic}#{ircColors.reset}"
 	for name, players of status.players
 		continue unless players.length
-		players = JSON.parse JSON.stringify players
-		players.push " " for i in [players.length..4]
-		t += " #{name}: [#{players}]"
 
+		players = JSON.parse JSON.stringify players
+		if players.length < 4 and name isnt "queue"
+			players.push "" for i in [1..4-players.length]
+		t += " #{ircColors[name]}#{name}#{ircColors.reset}: [#{players.join ", "}]"
+
+	debug "showing topic #{t}"
 	client.send "TOPIC", channel, t
+
+
+mapsHandler = (user, maps) ->
+	status.maps = maps if maps.length
+	client.say channel, "Maps: #{status.maps.join ", "}"
+
+
+handleTeamAdd = (team, user, params) ->
+	if params.length
+		addPlayerToTeam team, player for player in params
+	else
+		addPlayerToTeam team, user
+	updateTopic()
+
+
+addRed = (user, params) ->
+	handleTeamAdd "red", user, params
+
+
+addBlue = (user, params) ->
+	handleTeamAdd "blue", user, params
+
+
+addGreen = (user, params) ->
+	handleTeamAdd "green", user, params
+
+
+addYellow = (user, params) ->
+	handleTeamAdd "yellow", user, params
+
+
+addQueue = (user, params) ->
+	handleTeamAdd "queue", user, params
+
 
 commandHandlers =
 	"!a": addPlayer
 	"!r": remPlayer
-	"!t": setTopic
+	"!red": addRed
+	"!blue": addBlue
+	"!green": addGreen
+	"!yellow": addYellow
+	"!queue": addQueue
+	"!topic": setTopic
+	"!reset": resetValues
+	"!maps": mapsHandler
 
+ircColors =
+	red: "\x035"
+	blue: "\x032"
+	green: "\x033"
+	yellow: "\x038"
+	queue: "\x0314"
+	reset: "\x0f"
+	bold: "\x02"
 
 
 initValues()

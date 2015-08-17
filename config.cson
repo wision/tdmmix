@@ -11,3 +11,19 @@ players:
 	yellow: []
 	queue: []
 channels: []
+maps: [
+	"campgrounds"
+	"retribution"
+	"deepinside"
+	"intervention"
+	"dreadfullplace"
+	"limbus"
+	"arcanecitadel"
+	"hiddenfortress"
+	"purgatory"
+	"grimdungeons"
+	"realmofsteelrats"
+	"terminatria"
+	"tornado"
+]
+
