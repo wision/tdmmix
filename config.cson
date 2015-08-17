@@ -1,0 +1,13 @@
+server: "irc.quakenet.org"
+nickname: "MrsIna"
+auth:
+	name: "mrsina"
+	pass: process.env.AUTH_PASSWORD
+topic: "TDM MIX today ~18-20CET."
+players:
+	red: []
+	blue: []
+	green: []
+	yellow: []
+	queue: []
+channels: []

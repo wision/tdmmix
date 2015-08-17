@@ -1,0 +1,16 @@
+{
+  "name": "tdmmix",
+  "version": "1.0.0",
+  "description": "Simple #tdmmix bot",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wision",
+  "license": "ISC",
+  "dependencies": {
+    "cson-config": "^0.1.12",
+    "debug": "^2.2.0",
+    "irc": "^0.3.12"
+  }
+}
