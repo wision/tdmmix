@@ -69,8 +69,10 @@ addPlayer = (user, params, team) ->
 		team = "blue" if status.players.blue.length < status.players.red.length
 
 	player = params[1] if params[1]
-	player = params[0] if params[0] and params[0] not in ["red", "blue", "yellow", "green", "queue"]
+	player = params[0] if params[0] and not config.players[params[0]]
 	player ?= user
+
+	return unless config.players[team]
 
 	addPlayerToTeam team, player
 	updateTopic()
