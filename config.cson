@@ -1,4 +1,4 @@
-server: "irc.quakenet.org"
+ircserver: "irc.quakenet.org"
 nickname: "MrsIna"
 auth:
 	name: "mrsina"

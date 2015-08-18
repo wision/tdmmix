@@ -7,14 +7,14 @@ channel = "#tdmmix"
 
 status = {}
 
-client = new irc.Client config.server, config.nickname, channels: []
+client = new irc.Client config.ircserver, config.nickname, channels: []
 
 client.on "error", (err) ->
 	console.log "client.on error:", err
 
 client.on "registered", () ->
 	status.connected = yes
-	console.log "Connected to #{config.server} as #{config.nickname} channels: #{status.channels}"
+	console.log "Connected to #{config.ircserver} as #{config.nickname} channels: #{status.channels}"
 	client.say "Q@CServe.quakenet.org", "AUTH #{config.auth.name} #{config.auth.pass}"
 	client.conn.write "MODE MrsIna +x\r\n"
 
