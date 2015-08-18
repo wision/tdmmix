@@ -104,7 +104,7 @@ resetValues = () ->
 
 setTopic = (user, params) ->
 	debug "setting topic #{params}"
-	topic = params.join " "
+	status.topic = params.join " "
 	updateTopic()
 
 
