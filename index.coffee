@@ -92,11 +92,11 @@ remPlayer = (user, params) ->
 initValues = () ->
 	status.connected = no
 	status.channels = [ channel ]
-	status.maps = config.maps
 	resetValues()
 
 
 resetValues = () ->
+	status.maps = config.maps
 	status.topic = JSON.parse JSON.stringify config.topic
 	status.players = JSON.parse JSON.stringify config.players
 	updateTopic()
