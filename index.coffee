@@ -17,8 +17,11 @@ client.on "registered", () ->
 	console.log "Connected to #{config.server} as #{config.nickname} channels: #{status.channels}"
 	client.say "Q@CServe.quakenet.org", "AUTH #{config.auth.name} #{config.auth.pass}"
 	client.conn.write "MODE MrsIna +x\r\n"
-	# join channel after +x
-	client.conn.write "JOIN #{channel}\r\n" for channel in status.channels
+
+	# join channel after +x with small timeout
+	setTimeout () ->
+		client.conn.write "JOIN #{channel}\r\n" for channel in status.channels
+	, 500
 
 
 client.addListener "message", (from, to, message) ->
