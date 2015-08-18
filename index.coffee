@@ -61,7 +61,6 @@ addPlayerToTeam = (teamName, player) ->
 
 
 addPlayer = (user, params, team) ->
-	debug "adding player"
 	team = params[0]
 
 	unless team
