@@ -32,6 +32,7 @@ client.addListener "message", (from, to, message) ->
 
 
 processLine = (user, line) ->
+	line = line.replace /,/g, " "
 	line = line.split " "
 	params = []
 	for word in line
@@ -100,6 +101,7 @@ initValues = () ->
 
 resetValues = () ->
 	status.maps = config.maps
+	status.server = config.server
 	status.topic = JSON.parse JSON.stringify config.topic
 	status.players = JSON.parse JSON.stringify config.players
 	updateTopic()
@@ -122,6 +124,8 @@ updateTopic = () ->
 		if players.length < 4 and name isnt "queue"
 			players.push "" for i in [1..4-players.length]
 		t += " #{ircColors[name]}#{name}#{ircColors.reset}: [#{players.join ", "}]"
+
+	t += " -> #{status.server}" if status.server
 
 	debug "showing topic #{t}"
 	client.send "TOPIC", channel, t
@@ -160,9 +164,17 @@ addQueue = (user, params) ->
 	handleTeamAdd "queue", user, params
 
 
+addServer = (user, params) ->
+	return client.say channel, "Server: #{status.server}" unless params[0]
+
+	status.server = params[0]
+	updateTopic()
+
+
 commandHandlers =
 	"!a": addPlayer
 	"!r": remPlayer
+	"!s": addServer
 	"!red": addRed
 	"!blue": addBlue
 	"!green": addGreen
