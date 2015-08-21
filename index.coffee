@@ -171,10 +171,16 @@ addServer = (user, params) ->
 	updateTopic()
 
 
+printHelp = (user) ->
+	client.say user, """current commands: !a [team] [players...], !r [players], !red/!blue/!green/!yellow/!queue [players], !topic [topic], !reset, !maps [maps]"""
+
+
 commandHandlers =
 	"!a": addPlayer
 	"!r": remPlayer
 	"!s": addServer
+	"!h": printHelp
+	"!help": printHelp
 	"!red": addRed
 	"!blue": addBlue
 	"!green": addGreen
