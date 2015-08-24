@@ -31,6 +31,11 @@ client.addListener "message", (from, to, message) ->
 	processLine from, message if message[0] is "!"
 
 
+client.addListener "raw", (command) ->
+	continue unless command.rawCommand in ["PART", "KICK"]
+	remPlayer command.nick
+
+
 processLine = (user, line) ->
 	line = line.replace /,/g, " "
 	line = line.split " "
@@ -81,7 +86,7 @@ addPlayer = (user, params, team) ->
 	updateTopic()
 
 
-remPlayer = (user, params) ->
+remPlayer = (user, params = []) ->
 	debug "removing player"
 	player = params[0]
 	player ?= user
